@@ -1,0 +1,29 @@
+<Project>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageOutputPath>$(MSBuildProjectDirectory)publish</PackageOutputPath>
+    <ChangelogFilePath>$(MSBuildProjectDirectory)CHANGELOG.md</ChangelogFilePath>
+    <ReadmeFilePath>$(MSBuildProjectDirectory)README.md</ReadmeFilePath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Ricardo Boss</Authors>
+    <Copyright>Copyright © 2026 Ricardo Boss</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/ricardoboss/SimplySharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ricardoboss/SimplySharp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <!-- needed for Source Link -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(ReadmeFilePath)" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+</Project>

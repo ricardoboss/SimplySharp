@@ -1,0 +1,37 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <!-- Harden code against potential issues -->
+  <PropertyGroup>
+    <AnalysisMode>All</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <!-- Test Projects -->
+  <PropertyGroup Condition="$(MSBuildProjectFile.EndsWith('.Test.csproj'))">
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <Import Project="Directory.Test.props" Condition="'$(IsTestProject)' == 'true'"/>
+
+  <!-- Packagable Projects -->
+  <Import Project="Directory.Nuget.props" Condition="'$(IsTestProject)' != 'true' And '$(Configuration)' == 'Release'"/>
+  <Import Project="Directory.Nuget.targets" Condition="'$(IsTestProject)' != 'true' And '$(Configuration)' == 'Release'"/>
+
+  <!-- Hide actual source paths in release builds -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <Deterministic>true</Deterministic>
+    <DeterministicSourcePaths>true</DeterministicSourcePaths>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
+  </ItemGroup>
+
+</Project>

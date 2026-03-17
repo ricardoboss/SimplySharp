@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/.github/" />
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/dotnet.yml" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Nuget.props" />
+    <File Path="Directory.Nuget.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Directory.Test.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="SimplySharp.CodeDOM.Test/SimplySharp.CodeDOM.Test.csproj" />
+  <Project Path="SimplySharp.CodeDOM/SimplySharp.CodeDOM.csproj" />
+  <Project Path="SimplySharp.CodeGen.Test/SimplySharp.CodeGen.Test.csproj" />
+  <Project Path="SimplySharp.CodeGen/SimplySharp.CodeGen.csproj" />
+  <Project Path="SimplySharp.CodeParse.Test/SimplySharp.CodeParse.Test.csproj" />
+  <Project Path="SimplySharp.CodeParse/SimplySharp.CodeParse.csproj" />
+</Solution>
