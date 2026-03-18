@@ -1,5 +1,3 @@
-using SimplySharp.CodeDOM.Visitors;
-
 namespace SimplySharp.CodeDOM.Nodes;
 
 public class FieldNode : ICodeNode
@@ -8,8 +6,8 @@ public class FieldNode : ICodeNode
 
 	public required string Name { get; set; }
 
-	public async Task AcceptAsync(ICodeNodeVisitor visitor, CancellationToken cancellationToken = default)
+	public async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitAsync(this, cancellationToken);
+		await visitor.VisitFieldAsync(this, cancellationToken);
 	}
 }
