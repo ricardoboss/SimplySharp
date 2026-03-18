@@ -3,28 +3,23 @@ using SimplySharp.CodeDOM.Types;
 namespace SimplySharp.CodeDOM.Nodes;
 
 /// <summary>
-/// Represents a field declaration within a type.
+/// Represents an event declaration within a type.
 /// </summary>
-public class FieldNode : MemberNode
+public class EventNode : MemberNode
 {
 	/// <summary>
-	/// Gets or sets the type of this field.
+	/// Gets or sets the delegate type of this event.
 	/// </summary>
 	public required TypeRef Type { get; set; }
 
 	/// <summary>
-	/// Gets or sets the name of this field.
+	/// Gets or sets the name of this event.
 	/// </summary>
 	public required string Name { get; set; }
-
-	/// <summary>
-	/// Gets or sets a value indicating whether this field is declared as readonly.
-	/// </summary>
-	public bool IsReadonly { get; set; }
 
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitFieldAsync(this, cancellationToken);
+		await visitor.VisitEventAsync(this, cancellationToken);
 	}
 }
