@@ -1,3 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\SimplySharp.CodeDOM\SimplySharp.CodeDOM.csproj"/>
+  </ItemGroup>
 
 </Project>
