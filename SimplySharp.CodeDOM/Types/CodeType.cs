@@ -1,10 +1,12 @@
+using SimplySharp.CodeDOM.Nodes;
+
 namespace SimplySharp.CodeDOM.Types;
 
-public abstract class CodeType
+public abstract class CodeType : CodeNode
 {
-	public CodeNamespace? Namespace { get; set; }
+	public CodeNamespace? ContainingNamespace { get; internal set; }
+
+	public AccessModifier AccessModifier { get; set; } = AccessModifier.Public;
 
 	public required string Name { get; set; }
-
-	public abstract Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default);
 }

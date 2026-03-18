@@ -2,7 +2,7 @@ using SimplySharp.CodeDOM.Types;
 
 namespace SimplySharp.CodeDOM.Nodes;
 
-public class FieldNode : ICodeNode
+public class FieldNode : CodeNode
 {
 	public AccessModifier AccessModifier { get; set; } = AccessModifier.Public;
 
@@ -10,7 +10,7 @@ public class FieldNode : ICodeNode
 
 	public required string Name { get; set; }
 
-	public async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
+	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
 		await visitor.VisitFieldAsync(this, cancellationToken);
 	}
