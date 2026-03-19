@@ -42,6 +42,12 @@ public class MethodNode : MemberNode
 	/// </summary>
 	public bool IsAsync { get; set; }
 
+	/// <summary>
+	/// Gets the list of generic type parameters declared on this method
+	/// (e.g., <c>T</c> in <c>void DoStuff&lt;T&gt;(T value)</c>).
+	/// </summary>
+	public IList<GenericParameter> GenericParameters { get; init; } = [];
+
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{

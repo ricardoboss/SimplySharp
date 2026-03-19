@@ -6,7 +6,7 @@ namespace SimplySharp.CodeDOM.Types;
 /// <summary>
 /// Represents a class type declaration.
 /// </summary>
-public class ClassType : CodeType
+public class ClassType : GenericCodeType
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ClassType"/> class.

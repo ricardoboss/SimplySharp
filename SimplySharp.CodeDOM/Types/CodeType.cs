@@ -22,18 +22,4 @@ public abstract class CodeType : CodeNode
 	/// </summary>
 	public required string Name { get; set; }
 
-	/// <summary>
-	/// Gets or sets a value indicating whether this type is declared as abstract.
-	/// </summary>
-	public bool IsAbstract { get; set; }
-
-	/// <summary>
-	/// Gets or sets a value indicating whether this type is declared as sealed.
-	/// </summary>
-	public bool IsSealed { get; set; }
-
-	/// <summary>
-	/// Gets or sets a value indicating whether this type is declared as partial.
-	/// </summary>
-	public bool IsPartial { get; set; }
 }

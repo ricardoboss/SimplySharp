@@ -6,7 +6,7 @@ namespace SimplySharp.CodeDOM.Types;
 /// <summary>
 /// Represents a record type declaration (<c>record class</c> or <c>record struct</c>).
 /// </summary>
-public class RecordType : CodeType
+public class RecordType : GenericCodeType
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="RecordType"/> class.

@@ -5,7 +5,7 @@ namespace SimplySharp.CodeDOM.Types;
 /// <summary>
 /// Represents a delegate type declaration.
 /// </summary>
-public class DelegateType : CodeType
+public class DelegateType : GenericCodeType
 {
 	/// <summary>
 	/// Gets or sets the return type of this delegate.

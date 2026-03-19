@@ -6,7 +6,7 @@ namespace SimplySharp.CodeDOM.Types;
 /// <summary>
 /// Represents an interface type declaration.
 /// </summary>
-public class InterfaceType : CodeType
+public class InterfaceType : GenericCodeType
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InterfaceType"/> class.

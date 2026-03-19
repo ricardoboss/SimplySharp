@@ -6,7 +6,7 @@ namespace SimplySharp.CodeDOM.Types;
 /// <summary>
 /// Represents a struct type declaration.
 /// </summary>
-public class StructType : CodeType
+public class StructType : GenericCodeType
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="StructType"/> class.
