@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <Threshold>76</Threshold>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\SimplySharp.CodeDOM\SimplySharp.CodeDOM.csproj"/>
   </ItemGroup>

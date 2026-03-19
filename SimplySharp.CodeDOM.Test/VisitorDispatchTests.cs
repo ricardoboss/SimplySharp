@@ -127,4 +127,28 @@ public class VisitorDispatchTests
 
 		visitor.Verify(v => v.VisitDelegateTypeAsync(del, It.IsAny<CancellationToken>()), Times.Once);
 	}
+
+	[Test]
+	public async Task Visitor_TraversesNestedNamespaces()
+	{
+		var workspace = new CodeWorkspace();
+		var parentNs = new CodeNamespace { Name = "MyApp" };
+		workspace.Namespaces.Add(parentNs);
+		var parentClass = new ClassType { Name = "Foo" };
+		parentNs.Types.Add(parentClass);
+
+		var childNs = new CodeNamespace { Name = "Models" };
+		parentNs.Children.Add(childNs);
+		var childClass = new ClassType { Name = "Bar" };
+		childNs.Types.Add(childClass);
+
+		var visitor = new Mock<CodeDomVisitor> { CallBase = true };
+
+		await visitor.Object.VisitWorkspaceAsync(workspace).ConfigureAwait(false);
+
+		visitor.Verify(v => v.VisitNamespaceAsync(It.IsAny<CodeNamespace>(), It.IsAny<CancellationToken>()),
+			Times.Exactly(2));
+		visitor.Verify(v => v.VisitClassTypeAsync(parentClass, It.IsAny<CancellationToken>()), Times.Once);
+		visitor.Verify(v => v.VisitClassTypeAsync(childClass, It.IsAny<CancellationToken>()), Times.Once);
+	}
 }
