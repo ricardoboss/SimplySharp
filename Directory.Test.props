@@ -1,5 +1,9 @@
 ﻿<Project>
 
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);CA2007;CA1515;CA1707</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute"/>
   </ItemGroup>
