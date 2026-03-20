@@ -2,14 +2,6 @@
 
 Planned features and goals for SimplySharp.
 
-## T1: Ship a reference C# code emitter
-
-Provide a `CSharpCodeWriter` implementation of `CodeDomVisitor` that generates compilable C# source files from the DOM.
-Without this, every consumer must write their own emitter from scratch. A working emitter also serves as the primary
-integration test for the entire DOM.
-
----
-
 ## T2: Support Roslyn round-trip
 
 Enable parsing existing C# source files into the CodeDOM via Roslyn for read-modify-write workflows. This allows
@@ -90,3 +82,30 @@ This includes at least:
 
 Basically everything should be emitted so that `dotnet format` doesn't change anything (because it also supports custom
 `.editorconfig` rules).
+
+---
+
+## T9: Multi-file emission with a virtual file system
+
+The current `CSharpCodeWriter` produces a single string for an entire `CodeWorkspace`. Real-world usage typically
+requires one output file per type (or per namespace). To support this without forcing callers to decompose and
+reconstruct workspaces manually, introduce:
+
+1. **`ICodeFileSystem`** — an abstraction for writing output files. Implementations could target the real file system,
+   an in-memory dictionary (for testing / source generators), or a `SourceProductionContext`. The interface should
+   accept a file path, content, and an `Encoding` (configured via `CodeWriteSettings.Charset`, defaulting to UTF-8).
+
+2. **`ICodeFileStrategy`** (or similar) — a strategy that decides *how many files* to produce and *what path* each gets.
+   At minimum, provide two built-in strategies:
+   - **One file per type** — each `CodeType` is emitted to `{TypeName}.cs` (nested inside its namespace path).
+   - **One file per namespace** — all types in a `CodeNamespace` are emitted to a single file.
+
+   The strategy receives each namespace/type pair and returns the target file path. `CSharpCodeWriter` (or a new
+   orchestrator that wraps it) iterates the workspace, calls the strategy to get a path, creates a fresh
+   `SourceWriter` per file, emits the relevant subtree, and writes the result to the `ICodeFileSystem`.
+
+3. **`CodeWriteSettings.Charset`** — an `Encoding` property (default `Encoding.UTF8`) passed through to the file
+   system when writing. This mirrors `.editorconfig`'s `charset` setting.
+
+The existing single-string `CSharpCodeWriter.ToString()` workflow should continue to work unchanged for callers that
+don't need multi-file output.

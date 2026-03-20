@@ -4,7 +4,7 @@ Project guide for AI assistants working on SimplySharp.
 
 ## What is SimplySharp?
 
-A .NET library providing a Code DOM (Document Object Model) for C# source code. It represents C# constructs as an AST (classes, interfaces, enums, records, structs, delegates, and their members). Planned modules include code generation (CodeGen) and parsing (CodeParse).
+A .NET library providing a Code DOM (Document Object Model) for C# source code. It represents C# constructs as an AST (classes, interfaces, enums, records, structs, delegates, and their members). The CodeGen module provides a reference C# emitter (`CSharpCodeWriter`). The CodeParse module (parsing) is planned.
 
 ## Build & Test
 
@@ -23,8 +23,8 @@ Requires .NET 10.0 SDK (exact version and roll-forward policy in `global.json`).
 ```
 SimplySharp.CodeDOM/          # Core DOM library (types, nodes, collections, visitor)
 SimplySharp.CodeDOM.Test/     # NUnit tests for CodeDOM
-SimplySharp.CodeGen/          # Code generation (planned, currently empty)
-SimplySharp.CodeGen.Test/     # Tests for CodeGen
+SimplySharp.CodeGen/          # Code generation (CSharpCodeWriter)
+SimplySharp.CodeGen.Test/     # Tests for CodeGen (73 tests, 80% threshold)
 SimplySharp.CodeParse/        # Parsing (planned, currently empty)
 SimplySharp.CodeParse.Test/   # Tests for CodeParse
 ```
@@ -48,6 +48,7 @@ Key solution-level files:
 - **Type hierarchy**: `CodeNode` → `CodeType` → `GenericCodeType` → concrete types; `MemberNode` → concrete member nodes.
 - **TypeRef records**: `NamedTypeRef`, `GenericTypeRef`, `ArrayTypeRef`, `NullableTypeRef`, `TupleTypeRef` with static aliases for primitives (`TypeRef.Int`, `TypeRef.String`, etc.).
 - **`required` and `init` properties** used for essential fields.
+- **Code emitter**: `CSharpCodeWriter` in CodeGen — a `CodeDomVisitor` that emits C# source via a `SourceWriter`. Handles all node types, generic parameters/constraints, parameter modifiers, operator tokens, and base type lists. Formatting (indentation, line endings, final newline) and the target C# language version are configured through `CodeWriteSettings` and applied by `SourceWriter`. Language-version-aware: version-gated features (file-scoped namespaces, `record struct`, `file` modifier, `required`, `init`, primary constructors on classes/structs) are validated or adapted based on `CodeWriteSettings.LanguageVersion`. Well-known version constants live in `CSharpLanguageVersion`.
 
 ## Testing
 
@@ -80,12 +81,12 @@ Key solution-level files:
 
 ## Planned Work (from TODO.md)
 
-- **T1**: Reference C# code emitter (`CSharpCodeWriter` visitor)
 - **T2**: Roslyn round-trip parsing
 - **T3**: Source generator integration helpers
 - **T4**: Structural diffing of DOM trees
 - **T5**: Validation pipeline (pre-emission error checking)
 - **T6**: Fluent builder API
+- **T9**: Multi-file emission with a virtual file system (`ICodeFileSystem`, file-per-type / file-per-namespace strategies, `Charset` setting)
 
 ## Documentation Maintenance
 

@@ -70,6 +70,20 @@ The CodeGen emitter should produce output that compiles without modification and
 conventions. If a valid DOM tree can be constructed, the emitter should be able to produce valid C# from it. The emitter
 also serves as the primary integration test for the entire DOM.
 
+The reference implementation is `CSharpCodeWriter` in `SimplySharp.CodeGen`. It is a `CodeDomVisitor` subclass that
+delegates text output to a `SourceWriter`, which manages indentation and line endings according to a
+`CodeWriteSettings` record. `CSharpCodeWriter` handles all type/member declarations, generic parameters, constraints,
+parameter modifiers, operator tokens, and base type lists. Method and constructor bodies emit empty `{ }` blocks since
+the DOM does not yet model statement/expression AST nodes (see DG1). The `CodeWriteSettings`/`SourceWriter` separation
+is designed to accommodate future `.editorconfig` integration (configurable brace placement, etc.).
+
+The writer is language-version-aware per DG11. `CodeWriteSettings.LanguageVersion` (defaulting to
+`CSharpLanguageVersion.Latest`) controls which syntax features are emitted. Version-gated features are handled as
+follows: file-scoped namespaces fall back to block-scoped `namespace X { ... }` when targeting below C# 10; enum values
+annotated with `[RequiresLanguageVersion]` (e.g. `AccessModifier.File`) are validated via reflection; and features like
+`record`, `record struct`, `required`, `init`, and primary constructors on classes/structs throw
+`InvalidOperationException` if the target version is too low.
+
 ---
 
 ## DG8: No silent gaps in node handling

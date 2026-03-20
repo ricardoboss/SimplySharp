@@ -1,3 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <Threshold>80</Threshold>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SimplySharp.CodeGen\SimplySharp.CodeGen.csproj" />
+  </ItemGroup>
+
 </Project>
