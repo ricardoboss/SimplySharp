@@ -55,3 +55,38 @@ var cls = ClassBuilder.Create("Cake")
     .WithMethod("Bake", m => m.ReturnsVoid().WithBody(...))
     .Build();
 ```
+
+---
+
+## T7: Implement basic statements & expressions
+
+This relates to DG1. Expressions and statements should be fully typed instead of simple strings:
+
+```csharp
+var ex = new ConstantIntExpression(125);
+var st = new ReturnStatement(ex);
+
+var foo = new IfStatement(
+	condition: new ConstantBooleanExpression(false),
+	body: st,
+);
+```
+
+---
+
+## T8: Support reading code style from an .editorconfig file for CodeGen
+
+The default C# code emitter should be able to accomodate styling options from an `.editorconfig`.
+
+This includes at least:
+- indent style
+- indent size
+- line endings
+- charset
+- fine new line
+- trim trailing whitespace
+- C# brace placement
+- C# attribute placement
+
+Basically everything should be emitted so that `dotnet format` doesn't change anything (because it also supports custom
+`.editorconfig` rules).
