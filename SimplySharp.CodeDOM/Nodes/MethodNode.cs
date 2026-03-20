@@ -51,6 +51,8 @@ public class MethodNode : MemberNode
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitMethodAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitMethodAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

@@ -29,6 +29,8 @@ public class InterfaceType : GenericCodeType
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitInterfaceTypeAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitInterfaceTypeAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

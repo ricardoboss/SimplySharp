@@ -19,6 +19,8 @@ public class RecordType : ConstructibleCodeType
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitRecordTypeAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitRecordTypeAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

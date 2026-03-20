@@ -18,6 +18,8 @@ public class EnumMemberNode : CodeNode
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitEnumMemberAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitEnumMemberAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

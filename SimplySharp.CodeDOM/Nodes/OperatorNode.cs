@@ -25,6 +25,8 @@ public class OperatorNode : MemberNode
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitOperatorAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitOperatorAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

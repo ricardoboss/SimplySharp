@@ -20,6 +20,8 @@ public class EventNode : MemberNode
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitEventAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitEventAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

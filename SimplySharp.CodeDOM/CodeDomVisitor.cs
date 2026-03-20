@@ -17,8 +17,10 @@ public abstract class CodeDomVisitor
 	public virtual async Task VisitWorkspaceAsync(CodeWorkspace workspace,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(workspace);
+
 		foreach (var ns in workspace.Namespaces)
-			await ns.AcceptAsync(this, cancellationToken);
+			await ns.AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 
 	/// <summary>
@@ -28,11 +30,13 @@ public abstract class CodeDomVisitor
 	/// <param name="cancellationToken">A token to cancel the operation.</param>
 	public virtual async Task VisitNamespaceAsync(CodeNamespace ns, CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(ns);
+
 		foreach (var type in ns.Types)
-			await type.AcceptAsync(this, cancellationToken);
+			await type.AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 
 		foreach (var child in ns.Children)
-			await child.AcceptAsync(this, cancellationToken);
+			await child.AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 
 	/// <summary>
@@ -42,8 +46,10 @@ public abstract class CodeDomVisitor
 	/// <param name="cancellationToken">A token to cancel the operation.</param>
 	public virtual async Task VisitClassTypeAsync(ClassType classType, CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(classType);
+
 		foreach (var node in classType.Nodes)
-			await node.AcceptAsync(this, cancellationToken);
+			await node.AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 
 	/// <summary>
@@ -54,8 +60,10 @@ public abstract class CodeDomVisitor
 	public virtual async Task VisitInterfaceTypeAsync(InterfaceType interfaceType,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(interfaceType);
+
 		foreach (var node in interfaceType.Nodes)
-			await node.AcceptAsync(this, cancellationToken);
+			await node.AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 
 	/// <summary>
@@ -66,8 +74,10 @@ public abstract class CodeDomVisitor
 	public virtual async Task VisitStructTypeAsync(StructType structType,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(structType);
+
 		foreach (var node in structType.Nodes)
-			await node.AcceptAsync(this, cancellationToken);
+			await node.AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 
 	/// <summary>
@@ -78,8 +88,10 @@ public abstract class CodeDomVisitor
 	public virtual async Task VisitRecordTypeAsync(RecordType recordType,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(recordType);
+
 		foreach (var node in recordType.Nodes)
-			await node.AcceptAsync(this, cancellationToken);
+			await node.AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 
 	/// <summary>
@@ -89,8 +101,10 @@ public abstract class CodeDomVisitor
 	/// <param name="cancellationToken">A token to cancel the operation.</param>
 	public virtual async Task VisitEnumTypeAsync(EnumType enumType, CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(enumType);
+
 		foreach (var member in enumType.Members)
-			await member.AcceptAsync(this, cancellationToken);
+			await member.AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 
 	/// <summary>

@@ -1,5 +1,6 @@
 using SimplySharp.CodeDOM;
 using SimplySharp.CodeDOM.Attributes;
+using SimplySharp.CodeDOM.Collections;
 using SimplySharp.CodeDOM.Nodes;
 using SimplySharp.CodeDOM.Types;
 
@@ -31,38 +32,42 @@ namespace SimplySharp.CodeGen;
 /// <see cref="CodeWriteSettings.Default"/> is used.</param>
 public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisitor
 {
-	private readonly CodeWriteSettings _settings = settings ?? CodeWriteSettings.Default;
-	private readonly SourceWriter _writer = new(settings);
+	private readonly CodeWriteSettings settings = settings ?? CodeWriteSettings.Default;
+	private readonly SourceWriter writer = new(settings);
 
 	/// <summary>
 	/// Returns the generated C# source code.
 	/// </summary>
 	/// <returns>The accumulated source text.</returns>
-	public override string ToString() => _writer.ToString();
+	public override string ToString() => writer.ToString();
 
 	/// <inheritdoc />
 	public override async Task VisitWorkspaceAsync(CodeWorkspace workspace,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(workspace);
+
 		for (var i = 0; i < workspace.Namespaces.Count; i++)
 		{
 			if (i > 0)
-				_writer.WriteLine();
+				writer.WriteLine();
 
-			await workspace.Namespaces[i].AcceptAsync(this, cancellationToken);
+			await workspace.Namespaces[i].AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 		}
 	}
 
 	/// <inheritdoc />
 	public override async Task VisitNamespaceAsync(CodeNamespace ns, CancellationToken cancellationToken = default)
 	{
-		if (_settings.LanguageVersion >= CSharpLanguageVersion.CSharp10)
+		ArgumentNullException.ThrowIfNull(ns);
+
+		if (settings.LanguageVersion >= CSharpLanguageVersion.CSharp10)
 		{
-			await WriteFileScopedNamespaceAsync(ns, cancellationToken);
+			await WriteFileScopedNamespaceAsync(ns, cancellationToken).ConfigureAwait(false);
 		}
 		else
 		{
-			await WriteBlockScopedNamespaceAsync(ns, cancellationToken);
+			await WriteBlockScopedNamespaceAsync(ns, cancellationToken).ConfigureAwait(false);
 		}
 	}
 
@@ -71,25 +76,25 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	/// </summary>
 	private async Task WriteFileScopedNamespaceAsync(CodeNamespace ns, CancellationToken cancellationToken)
 	{
-		_writer.Write("namespace ");
-		_writer.Write(ns.FullName);
-		_writer.WriteLine(";");
-		_writer.WriteLine();
+		writer.Write("namespace ");
+		writer.Write(ns.FullName);
+		writer.WriteLine(";");
+		writer.WriteLine();
 
 		for (var i = 0; i < ns.Types.Count; i++)
 		{
 			if (i > 0)
-				_writer.WriteLine();
+				writer.WriteLine();
 
-			await ns.Types[i].AcceptAsync(this, cancellationToken);
+			await ns.Types[i].AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 		}
 
 		for (var i = 0; i < ns.Children.Count; i++)
 		{
 			if (ns.Types.Count > 0 || i > 0)
-				_writer.WriteLine();
+				writer.WriteLine();
 
-			await ns.Children[i].AcceptAsync(this, cancellationToken);
+			await ns.Children[i].AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 		}
 	}
 
@@ -98,103 +103,111 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	/// </summary>
 	private async Task WriteBlockScopedNamespaceAsync(CodeNamespace ns, CancellationToken cancellationToken)
 	{
-		_writer.Write("namespace ");
-		_writer.Write(ns.FullName);
-		_writer.WriteLine();
-		_writer.WriteLine("{");
-		_writer.Indent();
+		writer.Write("namespace ");
+		writer.Write(ns.FullName);
+		writer.WriteLine();
+		writer.WriteLine("{");
+		writer.Indent();
 
 		for (var i = 0; i < ns.Types.Count; i++)
 		{
 			if (i > 0)
-				_writer.WriteLine();
+				writer.WriteLine();
 
-			await ns.Types[i].AcceptAsync(this, cancellationToken);
+			await ns.Types[i].AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 		}
 
 		for (var i = 0; i < ns.Children.Count; i++)
 		{
 			if (ns.Types.Count > 0 || i > 0)
-				_writer.WriteLine();
+				writer.WriteLine();
 
-			await ns.Children[i].AcceptAsync(this, cancellationToken);
+			await ns.Children[i].AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 		}
 
-		_writer.Outdent();
-		_writer.WriteLine("}");
+		writer.Outdent();
+		writer.WriteLine("}");
 	}
 
 	/// <inheritdoc />
 	public override async Task VisitClassTypeAsync(ClassType classType,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(classType);
+
 		if (classType.PrimaryConstructorParameters is not null)
 			RequireLanguageVersion(CSharpLanguageVersion.CSharp12, "primary constructors on classes");
 
 		WriteAccessModifier(classType.AccessModifier);
 		WriteGenericCodeTypeModifiers(classType);
-		_writer.Write("class ");
-		_writer.Write(classType.Name);
+		writer.Write("class ");
+		writer.Write(classType.Name);
 		WriteGenericParameters(classType.GenericParameters);
 		WritePrimaryConstructorParameters(classType.PrimaryConstructorParameters);
 		WriteBaseTypes(classType.Extends, classType.Implements);
 		WriteGenericConstraints(classType.GenericParameters);
-		_writer.WriteLine();
+		writer.WriteLine();
 
-		await WriteTypeBodyAsync(classType.Nodes, cancellationToken);
+		await WriteTypeBodyAsync(classType.Nodes, cancellationToken).ConfigureAwait(false);
 	}
 
 	/// <inheritdoc />
 	public override async Task VisitInterfaceTypeAsync(InterfaceType interfaceType,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(interfaceType);
+
 		WriteAccessModifier(interfaceType.AccessModifier);
 		WriteGenericCodeTypeModifiers(interfaceType);
-		_writer.Write("interface ");
-		_writer.Write(interfaceType.Name);
+		writer.Write("interface ");
+		writer.Write(interfaceType.Name);
 		WriteGenericParameters(interfaceType.GenericParameters);
 		WriteInterfaceBaseTypes(interfaceType.Extends);
 		WriteGenericConstraints(interfaceType.GenericParameters);
-		_writer.WriteLine();
+		writer.WriteLine();
 
-		await WriteTypeBodyAsync(interfaceType.Nodes, cancellationToken);
+		await WriteTypeBodyAsync(interfaceType.Nodes, cancellationToken).ConfigureAwait(false);
 	}
 
 	/// <inheritdoc />
 	public override async Task VisitStructTypeAsync(StructType structType,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(structType);
+
 		if (structType.PrimaryConstructorParameters is not null)
 			RequireLanguageVersion(CSharpLanguageVersion.CSharp12, "primary constructors on structs");
 
 		WriteAccessModifier(structType.AccessModifier);
 		WriteGenericCodeTypeModifiers(structType);
-		_writer.Write("struct ");
-		_writer.Write(structType.Name);
+		writer.Write("struct ");
+		writer.Write(structType.Name);
 		WriteGenericParameters(structType.GenericParameters);
 		WritePrimaryConstructorParameters(structType.PrimaryConstructorParameters);
 		WriteBaseTypes(null, structType.Implements);
 		WriteGenericConstraints(structType.GenericParameters);
-		_writer.WriteLine();
+		writer.WriteLine();
 
-		await WriteTypeBodyAsync(structType.Nodes, cancellationToken);
+		await WriteTypeBodyAsync(structType.Nodes, cancellationToken).ConfigureAwait(false);
 	}
 
 	/// <inheritdoc />
 	public override async Task VisitRecordTypeAsync(RecordType recordType,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(recordType);
+
 		RequireLanguageVersion(CSharpLanguageVersion.CSharp9, "record types");
 		if (recordType.Kind == RecordKind.Struct)
 			RequireLanguageVersion(CSharpLanguageVersion.CSharp10, "record structs");
 
 		WriteAccessModifier(recordType.AccessModifier);
 		WriteGenericCodeTypeModifiers(recordType);
-		_writer.Write("record ");
+		writer.Write("record ");
 		if (recordType.Kind == RecordKind.Struct)
-			_writer.Write("struct ");
+			writer.Write("struct ");
 
-		_writer.Write(recordType.Name);
+		writer.Write(recordType.Name);
 		WriteGenericParameters(recordType.GenericParameters);
 		WritePrimaryConstructorParameters(recordType.PrimaryConstructorParameters);
 		WriteBaseTypes(recordType.Extends, recordType.Implements);
@@ -202,12 +215,12 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 
 		if (recordType.Nodes.Count == 0 && recordType.PrimaryConstructorParameters is not null)
 		{
-			_writer.WriteLine(";");
+			writer.WriteLine(";");
 		}
 		else
 		{
-			_writer.WriteLine();
-			await WriteTypeBodyAsync(recordType.Nodes, cancellationToken);
+			writer.WriteLine();
+			await WriteTypeBodyAsync(recordType.Nodes, cancellationToken).ConfigureAwait(false);
 		}
 	}
 
@@ -215,48 +228,52 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	public override async Task VisitEnumTypeAsync(EnumType enumType,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(enumType);
+
 		WriteAccessModifier(enumType.AccessModifier);
-		_writer.Write("enum ");
-		_writer.Write(enumType.Name);
+		writer.Write("enum ");
+		writer.Write(enumType.Name);
 
 		if (enumType.UnderlyingType is not null)
 		{
-			_writer.Write(" : ");
+			writer.Write(" : ");
 			WriteTypeRef(enumType.UnderlyingType);
 		}
 
-		_writer.WriteLine();
-		_writer.WriteLine("{");
-		_writer.Indent();
+		writer.WriteLine();
+		writer.WriteLine("{");
+		writer.Indent();
 
 		for (var i = 0; i < enumType.Members.Count; i++)
 		{
-			await enumType.Members[i].AcceptAsync(this, cancellationToken);
+			await enumType.Members[i].AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 
 			if (i < enumType.Members.Count - 1)
-				_writer.WriteLine(",");
+				writer.WriteLine(",");
 			else
-				_writer.WriteLine();
+				writer.WriteLine();
 		}
 
-		_writer.Outdent();
-		_writer.WriteLine("}");
+		writer.Outdent();
+		writer.WriteLine("}");
 	}
 
 	/// <inheritdoc />
 	public override Task VisitDelegateTypeAsync(DelegateType delegateType,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(delegateType);
+
 		WriteAccessModifier(delegateType.AccessModifier);
 		WriteGenericCodeTypeModifiers(delegateType);
-		_writer.Write("delegate ");
+		writer.Write("delegate ");
 		WriteTypeRef(delegateType.ReturnType);
-		_writer.Write(" ");
-		_writer.Write(delegateType.Name);
+		writer.Write(" ");
+		writer.Write(delegateType.Name);
 		WriteGenericParameters(delegateType.GenericParameters);
 		WriteParameterList(delegateType.Parameters);
 		WriteGenericConstraints(delegateType.GenericParameters);
-		_writer.WriteLine(";");
+		writer.WriteLine(";");
 
 		return Task.CompletedTask;
 	}
@@ -264,16 +281,18 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	/// <inheritdoc />
 	public override Task VisitFieldAsync(FieldNode fieldNode, CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(fieldNode);
+
 		WriteAccessModifier(fieldNode.AccessModifier);
 		if (fieldNode.IsStatic)
-			_writer.Write("static ");
+			writer.Write("static ");
 		if (fieldNode.IsReadonly)
-			_writer.Write("readonly ");
+			writer.Write("readonly ");
 
 		WriteTypeRef(fieldNode.Type);
-		_writer.Write(" ");
-		_writer.Write(fieldNode.Name);
-		_writer.WriteLine(";");
+		writer.Write(" ");
+		writer.Write(fieldNode.Name);
+		writer.WriteLine(";");
 
 		return Task.CompletedTask;
 	}
@@ -282,6 +301,8 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	public override Task VisitPropertyAsync(PropertyNode propertyNode,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(propertyNode);
+
 		if (propertyNode.IsRequired)
 			RequireLanguageVersion(CSharpLanguageVersion.CSharp11, "required properties");
 		if (propertyNode.IsSetterInit)
@@ -289,26 +310,26 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 
 		WriteAccessModifier(propertyNode.AccessModifier);
 		if (propertyNode.IsStatic)
-			_writer.Write("static ");
+			writer.Write("static ");
 		if (propertyNode.IsRequired)
-			_writer.Write("required ");
+			writer.Write("required ");
 
 		WriteTypeRef(propertyNode.Type);
-		_writer.Write(" ");
-		_writer.Write(propertyNode.Name);
-		_writer.Write(" { ");
+		writer.Write(" ");
+		writer.Write(propertyNode.Name);
+		writer.Write(" { ");
 
 		if (propertyNode.HasGetter)
-			_writer.Write("get; ");
+			writer.Write("get; ");
 		if (propertyNode.HasSetter)
 		{
 			if (propertyNode.IsSetterInit)
-				_writer.Write("init; ");
+				writer.Write("init; ");
 			else
-				_writer.Write("set; ");
+				writer.Write("set; ");
 		}
 
-		_writer.WriteLine("}");
+		writer.WriteLine("}");
 
 		return Task.CompletedTask;
 	}
@@ -316,27 +337,29 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	/// <inheritdoc />
 	public override Task VisitMethodAsync(MethodNode methodNode, CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(methodNode);
+
 		WriteAccessModifier(methodNode.AccessModifier);
 		if (methodNode.IsStatic)
-			_writer.Write("static ");
+			writer.Write("static ");
 		if (methodNode.IsAbstract)
-			_writer.Write("abstract ");
+			writer.Write("abstract ");
 		if (methodNode.IsVirtual)
-			_writer.Write("virtual ");
+			writer.Write("virtual ");
 		if (methodNode.IsOverride)
-			_writer.Write("override ");
+			writer.Write("override ");
 		if (methodNode.IsAsync)
-			_writer.Write("async ");
+			writer.Write("async ");
 
 		WriteTypeRef(methodNode.ReturnType);
-		_writer.Write(" ");
-		_writer.Write(methodNode.Name);
+		writer.Write(" ");
+		writer.Write(methodNode.Name);
 		WriteGenericParameters(methodNode.GenericParameters);
 		WriteParameterList(methodNode.Parameters);
 		WriteGenericConstraints(methodNode.GenericParameters);
 
 		if (methodNode.IsAbstract)
-			_writer.WriteLine(";");
+			writer.WriteLine(";");
 		else
 			WriteEmptyBody();
 
@@ -347,21 +370,23 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	public override Task VisitConstructorAsync(ConstructorNode constructorNode,
 		CancellationToken cancellationToken = default)
 	{
-		if (!constructorNode.IsStatic)
-			WriteAccessModifier(constructorNode.AccessModifier);
+		ArgumentNullException.ThrowIfNull(constructorNode);
+
 		if (constructorNode.IsStatic)
-			_writer.Write("static ");
+			writer.Write("static ");
+		else
+			WriteAccessModifier(constructorNode.AccessModifier);
 
 		var typeName = GetEnclosingTypeName(constructorNode);
-		_writer.Write(typeName);
+		writer.Write(typeName);
 		WriteParameterList(constructorNode.Parameters);
 
 		if (constructorNode.Initializer is not null)
 		{
 			var keyword = constructorNode.Initializer == ConstructorInitializerKind.Base ? "base" : "this";
-			_writer.Write(" : ");
-			_writer.Write(keyword);
-			_writer.Write("()");
+			writer.Write(" : ");
+			writer.Write(keyword);
+			writer.Write("()");
 		}
 
 		WriteEmptyBody();
@@ -372,15 +397,17 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	/// <inheritdoc />
 	public override Task VisitEventAsync(EventNode eventNode, CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(eventNode);
+
 		WriteAccessModifier(eventNode.AccessModifier);
 		if (eventNode.IsStatic)
-			_writer.Write("static ");
+			writer.Write("static ");
 
-		_writer.Write("event ");
+		writer.Write("event ");
 		WriteTypeRef(eventNode.Type);
-		_writer.Write(" ");
-		_writer.Write(eventNode.Name);
-		_writer.WriteLine(";");
+		writer.Write(" ");
+		writer.Write(eventNode.Name);
+		writer.WriteLine(";");
 
 		return Task.CompletedTask;
 	}
@@ -388,21 +415,23 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	/// <inheritdoc />
 	public override Task VisitIndexerAsync(IndexerNode indexerNode, CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(indexerNode);
+
 		WriteAccessModifier(indexerNode.AccessModifier);
 		if (indexerNode.IsStatic)
-			_writer.Write("static ");
+			writer.Write("static ");
 
 		WriteTypeRef(indexerNode.ReturnType);
-		_writer.Write(" this");
+		writer.Write(" this");
 		WriteParameterList(indexerNode.Parameters, "[", "]");
-		_writer.Write(" { ");
+		writer.Write(" { ");
 
 		if (indexerNode.HasGetter)
-			_writer.Write("get; ");
+			writer.Write("get; ");
 		if (indexerNode.HasSetter)
-			_writer.Write("set; ");
+			writer.Write("set; ");
 
-		_writer.WriteLine("}");
+		writer.WriteLine("}");
 
 		return Task.CompletedTask;
 	}
@@ -411,21 +440,23 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	public override Task VisitOperatorAsync(OperatorNode operatorNode,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentNullException.ThrowIfNull(operatorNode);
+
 		WriteAccessModifier(operatorNode.AccessModifier);
 		if (operatorNode.IsStatic)
-			_writer.Write("static ");
+			writer.Write("static ");
 
 		if (operatorNode.Kind is OperatorKind.Implicit or OperatorKind.Explicit)
 		{
-			_writer.Write(operatorNode.Kind == OperatorKind.Implicit ? "implicit" : "explicit");
-			_writer.Write(" operator ");
+			writer.Write(operatorNode.Kind == OperatorKind.Implicit ? "implicit" : "explicit");
+			writer.Write(" operator ");
 			WriteTypeRef(operatorNode.ReturnType);
 		}
 		else
 		{
 			WriteTypeRef(operatorNode.ReturnType);
-			_writer.Write(" operator ");
-			_writer.Write(GetOperatorToken(operatorNode.Kind));
+			writer.Write(" operator ");
+			writer.Write(GetOperatorToken(operatorNode.Kind));
 		}
 
 		WriteParameterList(operatorNode.Parameters);
@@ -438,12 +469,14 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	public override Task VisitEnumMemberAsync(EnumMemberNode enumMemberNode,
 		CancellationToken cancellationToken = default)
 	{
-		_writer.Write(enumMemberNode.Name);
+		ArgumentNullException.ThrowIfNull(enumMemberNode);
+
+		writer.Write(enumMemberNode.Name);
 
 		if (enumMemberNode.Value is not null)
 		{
-			_writer.Write(" = ");
-			_writer.Write(FormatEnumValue(enumMemberNode.Value));
+			writer.Write(" = ");
+			writer.Write(FormatEnumValue(enumMemberNode.Value));
 		}
 
 		return Task.CompletedTask;
@@ -467,21 +500,21 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	/// <summary>
 	/// Writes the body of a type (opening brace, members, closing brace).
 	/// </summary>
-	private async Task WriteTypeBodyAsync(IList<CodeNode> nodes, CancellationToken cancellationToken)
+	private async Task WriteTypeBodyAsync(CodeNodeCollection<CodeNode> nodes, CancellationToken cancellationToken)
 	{
-		_writer.WriteLine("{");
-		_writer.Indent();
+		writer.WriteLine("{");
+		writer.Indent();
 
 		for (var i = 0; i < nodes.Count; i++)
 		{
 			if (i > 0)
-				_writer.WriteLine();
+				writer.WriteLine();
 
-			await nodes[i].AcceptAsync(this, cancellationToken);
+			await nodes[i].AcceptAsync(this, cancellationToken).ConfigureAwait(false);
 		}
 
-		_writer.Outdent();
-		_writer.WriteLine("}");
+		writer.Outdent();
+		writer.WriteLine("}");
 	}
 
 	/// <summary>
@@ -489,9 +522,9 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	/// </summary>
 	private void WriteEmptyBody()
 	{
-		_writer.WriteLine();
-		_writer.WriteLine("{");
-		_writer.WriteLine("}");
+		writer.WriteLine();
+		writer.WriteLine("{");
+		writer.WriteLine("}");
 	}
 
 	/// <summary>
@@ -515,8 +548,8 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 			_ => throw new ArgumentOutOfRangeException(nameof(modifier), modifier, "Unknown access modifier."),
 		};
 
-		_writer.Write(keyword);
-		_writer.Write(" ");
+		writer.Write(keyword);
+		writer.Write(" ");
 	}
 
 	/// <summary>
@@ -525,11 +558,11 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	private void WriteGenericCodeTypeModifiers(GenericCodeType type)
 	{
 		if (type.IsAbstract)
-			_writer.Write("abstract ");
+			writer.Write("abstract ");
 		if (type.IsSealed)
-			_writer.Write("sealed ");
+			writer.Write("sealed ");
 		if (type.IsPartial)
-			_writer.Write("partial ");
+			writer.Write("partial ");
 	}
 
 	/// <summary>
@@ -540,48 +573,49 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 		switch (typeRef)
 		{
 			case TupleTypeRef tuple:
-				_writer.Write("(");
+				writer.Write("(");
 				for (var i = 0; i < tuple.Elements.Count; i++)
 				{
 					if (i > 0)
-						_writer.Write(", ");
+						writer.Write(", ");
 
 					WriteTypeRef(tuple.Elements[i].Type);
 					if (tuple.Elements[i].Name is not null)
 					{
-						_writer.Write(" ");
-						_writer.Write(tuple.Elements[i].Name!);
+						writer.Write(" ");
+						writer.Write(tuple.Elements[i].Name!);
 					}
 				}
-				_writer.Write(")");
+				writer.Write(")");
 				break;
 			case ArrayTypeRef array:
 				WriteTypeRef(array.ElementType);
-				_writer.Write("[");
-				_writer.Write(new string(',', array.Rank - 1));
-				_writer.Write("]");
+				writer.Write("[");
+				if (array.Rank > 1)
+					writer.Write(new string(',', array.Rank - 1));
+				writer.Write("]");
 				break;
 			case NullableTypeRef nullable:
 				WriteTypeRef(nullable.UnderlyingType);
-				_writer.Write("?");
+				writer.Write("?");
 				break;
 			case GenericTypeRef generic:
 				WriteNamedTypeRefName(generic);
-				_writer.Write("<");
+				writer.Write("<");
 				for (var i = 0; i < generic.Arguments.Count; i++)
 				{
 					if (i > 0)
-						_writer.Write(", ");
+						writer.Write(", ");
 
 					WriteTypeRef(generic.Arguments[i]);
 				}
-				_writer.Write(">");
+				writer.Write(">");
 				break;
 			case NamedTypeRef named:
 				WriteNamedTypeRefName(named);
 				break;
 			default:
-				_writer.Write(typeRef.ToString()!);
+				writer.Write(typeRef.ToString()!);
 				break;
 		}
 	}
@@ -593,11 +627,11 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	{
 		if (named.Namespace is not null)
 		{
-			_writer.Write(named.Namespace);
-			_writer.Write(".");
+			writer.Write(named.Namespace);
+			writer.Write(".");
 		}
 
-		_writer.Write(named.Name);
+		writer.Write(named.Name);
 	}
 
 	/// <summary>
@@ -608,21 +642,21 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 		if (parameters.Count == 0)
 			return;
 
-		_writer.Write("<");
+		writer.Write("<");
 		for (var i = 0; i < parameters.Count; i++)
 		{
 			if (i > 0)
-				_writer.Write(", ");
+				writer.Write(", ");
 
 			var gp = parameters[i];
 			if (gp.Variance == Variance.In)
-				_writer.Write("in ");
+				writer.Write("in ");
 			else if (gp.Variance == Variance.Out)
-				_writer.Write("out ");
+				writer.Write("out ");
 
-			_writer.Write(gp.Name);
+			writer.Write(gp.Name);
 		}
-		_writer.Write(">");
+		writer.Write(">");
 	}
 
 	/// <summary>
@@ -635,14 +669,14 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 			if (gp.Constraints.Count == 0)
 				continue;
 
-			_writer.Write(" where ");
-			_writer.Write(gp.Name);
-			_writer.Write(" : ");
+			writer.Write(" where ");
+			writer.Write(gp.Name);
+			writer.Write(" : ");
 
 			for (var i = 0; i < gp.Constraints.Count; i++)
 			{
 				if (i > 0)
-					_writer.Write(", ");
+					writer.Write(", ");
 
 				WriteConstraint(gp.Constraints[i]);
 			}
@@ -657,25 +691,25 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 		switch (constraint)
 		{
 			case ClassConstraint { IsNullable: true }:
-				_writer.Write("class?");
+				writer.Write("class?");
 				break;
 			case ClassConstraint:
-				_writer.Write("class");
+				writer.Write("class");
 				break;
 			case StructConstraint:
-				_writer.Write("struct");
+				writer.Write("struct");
 				break;
 			case UnmanagedConstraint:
-				_writer.Write("unmanaged");
+				writer.Write("unmanaged");
 				break;
 			case NotNullConstraint:
-				_writer.Write("notnull");
+				writer.Write("notnull");
 				break;
 			case NewConstraint:
-				_writer.Write("new()");
+				writer.Write("new()");
 				break;
 			case DefaultConstraint:
-				_writer.Write("default");
+				writer.Write("default");
 				break;
 			case TypeConstraint tc:
 				WriteTypeRef(tc.Type);
@@ -688,15 +722,15 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	/// </summary>
 	private void WriteParameterList(IList<Parameter> parameters, string open = "(", string close = ")")
 	{
-		_writer.Write(open);
+		writer.Write(open);
 		for (var i = 0; i < parameters.Count; i++)
 		{
 			if (i > 0)
-				_writer.Write(", ");
+				writer.Write(", ");
 
 			WriteParameter(parameters[i]);
 		}
-		_writer.Write(close);
+		writer.Write(close);
 	}
 
 	/// <summary>
@@ -706,7 +740,7 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	{
 		if (parameter.Modifier != ParameterModifier.None)
 		{
-			_writer.Write(parameter.Modifier switch
+			writer.Write(parameter.Modifier switch
 			{
 				ParameterModifier.Ref => "ref",
 				ParameterModifier.Out => "out",
@@ -715,12 +749,12 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 				_ => throw new ArgumentOutOfRangeException(nameof(parameter), parameter.Modifier,
 					"Unknown parameter modifier."),
 			});
-			_writer.Write(" ");
+			writer.Write(" ");
 		}
 
 		WriteTypeRef(parameter.Type);
-		_writer.Write(" ");
-		_writer.Write(parameter.Name);
+		writer.Write(" ");
+		writer.Write(parameter.Name);
 	}
 
 	/// <summary>
@@ -745,20 +779,20 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 		if (!hasBase && !hasInterfaces)
 			return;
 
-		_writer.Write(" : ");
+		writer.Write(" : ");
 
 		if (hasBase)
 		{
 			WriteTypeRef(extends!);
 			if (hasInterfaces)
-				_writer.Write(", ");
+				writer.Write(", ");
 		}
 
 		var first = true;
 		foreach (var iface in implements)
 		{
 			if (!first)
-				_writer.Write(", ");
+				writer.Write(", ");
 
 			WriteTypeRef(iface);
 			first = false;
@@ -773,13 +807,13 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 		if (extends.Count == 0)
 			return;
 
-		_writer.Write(" : ");
+		writer.Write(" : ");
 
 		var first = true;
 		foreach (var baseType in extends)
 		{
 			if (!first)
-				_writer.Write(", ");
+				writer.Write(", ");
 
 			WriteTypeRef(baseType);
 			first = false;
@@ -836,10 +870,10 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 	/// <param name="featureName">A human-readable name for the feature, used in the error message.</param>
 	private void RequireLanguageVersion(int requiredVersion, string featureName)
 	{
-		if (_settings.LanguageVersion < requiredVersion)
+		if (settings.LanguageVersion < requiredVersion)
 			throw new InvalidOperationException(
 				$"{featureName} require C# {requiredVersion} or later, " +
-				$"but the target language version is C# {_settings.LanguageVersion}.");
+				$"but the target language version is C# {settings.LanguageVersion}.");
 	}
 
 	/// <summary>
@@ -855,9 +889,8 @@ public class CSharpCodeWriter(CodeWriteSettings? settings = null) : CodeDomVisit
 		if (memberInfo is null)
 			return;
 
-		var attr = Attribute.GetCustomAttribute(memberInfo, typeof(RequiresLanguageVersionAttribute))
-			as RequiresLanguageVersionAttribute;
-		if (attr is not null)
-			RequireLanguageVersion(attr.Major, $"'{memberName}' access modifier");
+		var attr = Attribute.GetCustomAttribute(memberInfo, typeof(RequiresLanguageVersionAttribute));
+		if (attr is RequiresLanguageVersionAttribute rlva)
+			RequireLanguageVersion(rlva.Major, $"'{memberName}' access modifier");
 	}
 }

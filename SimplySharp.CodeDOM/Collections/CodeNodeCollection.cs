@@ -7,6 +7,8 @@ public class CodeNodeCollection<T>(CodeNode owner) : Collection<T> where T : Cod
 {
 	protected override void InsertItem(int index, T item)
 	{
+		ArgumentNullException.ThrowIfNull(item);
+
 		item.Parent = owner;
 
 		base.InsertItem(index, item);
@@ -21,6 +23,8 @@ public class CodeNodeCollection<T>(CodeNode owner) : Collection<T> where T : Cod
 
 	protected override void SetItem(int index, T item)
 	{
+		ArgumentNullException.ThrowIfNull(item);
+
 		this[index].Parent = null;
 		item.Parent = owner;
 

@@ -34,6 +34,8 @@ public class ConstructorNode : MemberNode
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitConstructorAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitConstructorAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

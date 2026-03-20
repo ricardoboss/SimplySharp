@@ -13,6 +13,8 @@ public class CodeNamespaceCollection : Collection<CodeNamespace>
 
 	protected override void InsertItem(int index, CodeNamespace item)
 	{
+		ArgumentNullException.ThrowIfNull(item);
+
 		item.Parent = namespaceOwner;
 		item.Workspace = workspaceOwner;
 
@@ -29,6 +31,8 @@ public class CodeNamespaceCollection : Collection<CodeNamespace>
 
 	protected override void SetItem(int index, CodeNamespace item)
 	{
+		ArgumentNullException.ThrowIfNull(item);
+
 		this[index].Parent = null;
 		this[index].Workspace = null;
 		item.Parent = namespaceOwner;

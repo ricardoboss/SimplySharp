@@ -38,6 +38,8 @@ public class CodeNamespace
 
 	public async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitNamespaceAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitNamespaceAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

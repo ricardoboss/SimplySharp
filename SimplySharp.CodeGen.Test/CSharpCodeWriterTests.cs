@@ -1059,8 +1059,8 @@ public class CSharpCodeWriterTests
 		var result = await EmitTypeAsync(cls);
 
 		var lines = result.Split('\n');
-		var xLine = Array.FindIndex(lines, l => l.Contains("public int x;"));
-		var yLine = Array.FindIndex(lines, l => l.Contains("public int y;"));
+		var xLine = Array.FindIndex(lines, l => l.Contains("public int x;", StringComparison.Ordinal));
+		var yLine = Array.FindIndex(lines, l => l.Contains("public int y;", StringComparison.Ordinal));
 
 		Assert.That(xLine, Is.GreaterThan(-1));
 		Assert.That(yLine, Is.GreaterThan(xLine + 1), "Expected a blank line between members");

@@ -20,6 +20,8 @@ public class DelegateType : GenericCodeType
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitDelegateTypeAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitDelegateTypeAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

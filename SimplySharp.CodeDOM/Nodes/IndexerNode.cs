@@ -30,6 +30,8 @@ public class IndexerNode : MemberNode
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitIndexerAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitIndexerAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

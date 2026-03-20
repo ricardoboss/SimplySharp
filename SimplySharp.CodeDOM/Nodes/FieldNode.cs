@@ -25,6 +25,8 @@ public class FieldNode : MemberNode
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitFieldAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitFieldAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

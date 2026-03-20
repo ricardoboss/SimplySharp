@@ -7,6 +7,8 @@ public class CodeTypeCollection(CodeNamespace owner) : Collection<CodeType>
 {
 	protected override void InsertItem(int index, CodeType item)
 	{
+		ArgumentNullException.ThrowIfNull(item);
+
 		item.ContainingNamespace = owner;
 
 		base.InsertItem(index, item);
@@ -21,6 +23,8 @@ public class CodeTypeCollection(CodeNamespace owner) : Collection<CodeType>
 
 	protected override void SetItem(int index, CodeType item)
 	{
+		ArgumentNullException.ThrowIfNull(item);
+
 		this[index].ContainingNamespace = null;
 		item.ContainingNamespace = owner;
 

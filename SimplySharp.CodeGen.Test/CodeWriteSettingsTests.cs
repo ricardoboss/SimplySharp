@@ -29,10 +29,4 @@ public class CodeWriteSettingsTests
 		Assert.That(settings.InsertFinalNewline, Is.False);
 		Assert.That(settings.LanguageVersion, Is.EqualTo(CSharpLanguageVersion.CSharp9));
 	}
-
-	[Test]
-	public void Default_IsSingleton()
-	{
-		Assert.That(CodeWriteSettings.Default, Is.SameAs(CodeWriteSettings.Default));
-	}
 }

@@ -13,6 +13,8 @@ public class ClassType : ConstructibleCodeType
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitClassTypeAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitClassTypeAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }

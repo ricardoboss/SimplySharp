@@ -40,6 +40,8 @@ public class PropertyNode : MemberNode
 	/// <inheritdoc />
 	public override async Task AcceptAsync(CodeDomVisitor visitor, CancellationToken cancellationToken = default)
 	{
-		await visitor.VisitPropertyAsync(this, cancellationToken);
+		ArgumentNullException.ThrowIfNull(visitor);
+
+		await visitor.VisitPropertyAsync(this, cancellationToken).ConfigureAwait(false);
 	}
 }
