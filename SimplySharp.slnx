@@ -24,4 +24,5 @@
   <Project Path="SimplySharp.CodeGen/SimplySharp.CodeGen.csproj" />
   <Project Path="SimplySharp.CodeParse.Test/SimplySharp.CodeParse.Test.csproj" />
   <Project Path="SimplySharp.CodeParse/SimplySharp.CodeParse.csproj" />
+  <Project Path="SimplySharp.Example/SimplySharp.Example.csproj" />
 </Solution>
